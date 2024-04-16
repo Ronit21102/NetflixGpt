@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { validateData } from '../Utils/validate'
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+
 
 const SignUp = ({setIsSignForm}) => {
      const email = useRef();
@@ -9,15 +11,25 @@ const SignUp = ({setIsSignForm}) => {
     const handleSubmit = (e)=>{
         e.preventDefault();
           
-         const isValid = validateData(email.current.value,password.current.value);
-          
+         const isValid = validateData(email.current.value,password.current.value);   
+         setErrorMessage(isValid);
 
-         if(!isValid){
-           setErrorMessage(null);
-           alert("valid")
-         }else{
-          setErrorMessage(isValid)
-         }
+         if(isValid)
+          return;
+          const auth = getAuth();
+          createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
+            .then((userCredential) => {
+              // Signed up 
+              const user = userCredential.user;
+              // ...
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              // ..
+            });
+
+
    }
   return (
     <form className="mx-auto right-0 left-0 my-36 w-3/12 absolute p-12 bg-black text-white rounded-lg bg-opacity-80">

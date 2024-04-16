@@ -18,10 +18,11 @@ const Login = () => {
          e.preventDefault();
            
           const isValid = validateData(email.current.value,password.current.value);
-           
-
-        
            setErrorMessage(isValid)
+           if(isValid)
+            return;
+
+        //sign in
           
     }
   return (
