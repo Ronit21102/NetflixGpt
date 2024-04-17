@@ -1,14 +1,29 @@
-export const validateName = (name) => {
-    const isNameValid = /^[A-Za-z][A-Za-z0-9_]{6,28}$/.test(name);
-    return isNameValid ? null : "Username not valid";
-  };
+export const checkValidData = (email, password) => {
+    // This Validate variables will test and store TRUE / FALSE depends on test()
+    const emailValidate = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email);
+    const passwordValidate = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/.test(password);
+    // const nameValidate = name !== null && name !== undefined;
   
-  export const validateData = (email, password) => {
-    const isEmailValid = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
-    const isPasswordValid = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(password);
-  
-    if (!isEmailValid) return "Email is not valid";
-    if (!isPasswordValid) return "Weak Password";
-  
+    // If they are false Give Error Message
+    // if (!nameValidate) return "Name is not Valid";
+    if (!emailValidate) return "Email is not Valid";
+    if (!passwordValidate) return "Password is not Valid";
+
     return null;
   };
+  
+  export const checkValidData2 = (name, email, password) => {
+    // This Validate variables will test and store TRUE / FALSE depends on test()
+    const emailValidate = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email);
+    const passwordValidate = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/.test(password);
+    const nameValidate = name !== "" && name !== undefined;
+  
+    // If they are false Give Error Message
+    if (!nameValidate) return "Name is not Valid";
+    if (!emailValidate) return "Email is not Valid";
+    if (!passwordValidate) return "Password must contain 6 digits one symbol, one capital letter";
+
+    return null;
+
+  };
+  

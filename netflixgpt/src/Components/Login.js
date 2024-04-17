@@ -1,63 +1,145 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, { useRef, useState } from "react";
+import { useState, useRef } from "react";
 import Header from "./Header";
-import SignUp from "./SignUp";
-import {validateData} from "../Utils/validate";
+import { checkValidData, checkValidData2 } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { BACK_IMG } from "../utils/constants";
 
 const Login = () => {
+  const [isSignIn, setisSignIn] = useState(true);
+  const [notValid, setnotValid] = useState(null);
+  const email = useRef(null);
+  const password = useRef(null);
+  const name = useRef(null);
 
-    const [isSignForm , setIsSignForm] = useState(true);
-    const [errorMessage,setErrorMessage] = useState(null);
 
-    const toggle = ()=>{
-        setIsSignForm(prev => !prev);
-    }
-    const email = useRef();
-    const password = useRef();
-    const handleSubmit = (e)=>{
-         e.preventDefault();
-           
-          const isValid = validateData(email.current.value,password.current.value);
-           setErrorMessage(isValid)
-           if(isValid)
-            return;
+  const handleSignIn = () => {
+    const message = checkValidData(email.current.value, password.current.value);
+    setnotValid(message);
+    if (message) return;
 
-        //sign in
-          
-    }
+    //Sign In Code if no error
+    signInWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        const user = userCredential.user;
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setnotValid("Incorrect Password");
+      });
+  };
+
+  const handleSignUp = () => {
+    const message2 = checkValidData2(
+      name.current.value,
+      email.current.value,
+      password.current.value
+    );
+    setnotValid(message2);
+    if (message2) return;
+
+    //SignUp Code with no error
+    createUserWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user)
+
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setnotValid(errorCode + errorMessage);
+      });
+  };
+
+  const toggleSignInForm = () => {
+    setisSignIn(!isSignIn);
+  };
+
+  //Tailwind Constants
+  const inputCss =
+    "lg:py-3 md:py-3 lg:text-base md:text-base text-sm py-3 bg-zinc-900 bg-opacity-60 text-white border-[1px] border-gray-400 rounded-md md:px-4 px-3 my-3 lg:px-4 w-full";
+  const buttonCss =
+    "w-full bg-red-700 py-2 text-white rounded-md my-3 font-semibold";
+
   return (
-    <div>
+    <div className="relative w-12/12">
       <Header />
-      <div className="absolute">
-        <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/c1366fb4-3292-4428-9639-b73f25539794/3417bf9a-0323-4480-84ee-e1cb2ff0966b/IN-en-20240408-popsignuptwoweeks-perspective_alpha_website_large.jpg"
-          alt="background"
-        />
+      <div className="bg-black bg-opacity-75 rounded-md  lg:w-4/12 w-11/12 sm:w-7/12 md:w-5/12 absolute mx-auto lg:my-28 my-44 md:my-24 right-0 left-0 z-20 py-4 md:py-6 lg:py-6">
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex justify-center items-center flex-col lg:py-8 lg:px-8 py-4 px-2 md:py-8 md:px-8"
+        >
+          <div className="w-10/12">
+            <h1 className="text-white lg:text-4xl text-3xl md:text-4xl font-bold md:my-4 my-3 lg:my-4">
+              {isSignIn ? "Sign In" : "Sign Up"}
+            </h1>
+
+            {!isSignIn && (
+              <input
+                ref={name}
+                className={inputCss}
+                type="text"
+                placeholder="Name"
+              ></input>
+            )}
+            <input
+              ref={email}
+              className={inputCss}
+              type="text"
+              placeholder="Email"
+            ></input>
+            <input
+              ref={password}
+              className={inputCss}
+              type="password"
+              placeholder="Password"
+            ></input>
+            <span className="text-red-700 text-base font-semibold">
+              {notValid}
+            </span>
+            {isSignIn ? (
+              <button className={buttonCss} onClick={handleSignIn}>
+                signIn
+              </button>
+            ) : (
+              <button className={buttonCss} onClick={handleSignUp}>
+                signup
+              </button>
+            )}
+            <span className=" lg:text-base md:text-base text-sm font-normal text-gray-300">
+              {isSignIn ? "Not a user? " : "Already a user? "}
+            </span>
+            <span
+              className="font-semibold lg:text-base md:text-base text-sm  text-gray-50 px-1.5 cursor-pointer"
+              onClick={toggleSignInForm}
+            >
+              {isSignIn ? "Sign Up" :"Sign In"}
+            </span>
+          </div>
+        </form>
       </div>
-       {
-          isSignForm?(<form className="mx-auto right-0 left-0 my-36 w-3/12 absolute p-12 bg-black text-white rounded-lg bg-opacity-80">
-          <h1 className="font-bold text-3xl py-4">Sign In</h1>
-          <input
-            ref={email}
-            type="text"
-            placeholder="Email Address"
-            className="p-2 my-4 w-full bg-gray-700"
-          />
-          <input
-            ref={password}
-            type="password"
-            placeholder="password"
-            className="p-2 my-4 w-full bg-gray-700"
-          />
-          <p className="text-red-800 font-bold py-2 text-lg">{errorMessage?errorMessage:""}</p>
-          <button className="p-4 my-6 bg-red-700 w-full" onClick={handleSubmit}>Sign in</button>
-  
-          <p className="py-4 cursor-pointer" onClick={toggle}>New to netflix?Sign up now</p>
-        </form>):(<SignUp setIsSignForm={setIsSignForm}/>)
-       }
-      
+      <div className="overflow-hidden w-full">
+        <img
+          className=" brightness-[.6] lg:scale-110 md:scale-x-125 sm:scale-x-150  sm:scale-y-110  md:h-[600px] sm:h-[600px] object-cover h-screen lg:h-[700px]  w-full"
+          alt="background"
+          src={BACK_IMG}
+        ></img>
+      </div>
     </div>
   );
 };
-
 export default Login;
