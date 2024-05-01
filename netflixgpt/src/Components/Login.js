@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { BACK_IMG } from "../utils/constants";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignIn, setisSignIn] = useState(true);
@@ -16,7 +17,7 @@ const Login = () => {
   const password = useRef(null);
   const name = useRef(null);
 
-
+   const navigate = useNavigate();
   const handleSignIn = () => {
     const message = checkValidData(email.current.value, password.current.value);
     setnotValid(message);
@@ -30,6 +31,17 @@ const Login = () => {
     )
       .then((userCredential) => {
         const user = userCredential.user;
+        updateProfile(user, {
+          displayName: name.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
+        }).then(() => {
+          // Profile updated!
+          navigate("/browse")
+        }).catch((error) => {
+          // An error occurred
+          setnotValid(error.message)
+        });
+        
+
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -56,6 +68,7 @@ const Login = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user)
+        navigate("/browse")
 
       })
       .catch((error) => {
